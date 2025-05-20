@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>12-Month Jamaat Challenge</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      font-size: 14px;
+      padding: 12px;
+      background: #f9f9f9;
+      max-width: 600px;
+      margin: auto;
+      color: #333;
+    }
+    h1 {
+      text-align: center;
+      font-size: 20px;
+      margin-bottom: 10px;
+    }
+    .intro {
+      font-size: 13px;
+      background: #fff;
+      padding: 10px;
+      margin-bottom: 20px;
+      border-radius: 8px;
+      box-shadow: 0 0 5px rgba(0,0,0,0.1);
+    }
+    .month {
+      background: #fff;
+      margin-bottom: 12px;
+      padding: 10px;
+      border-radius: 6px;
+      box-shadow: 0 0 4px rgba(0,0,0,0.1);
+    }
+    .month-header {
+      font-weight: bold;
+      margin-bottom: 5px;
+    }
+    input[type="checkbox"] {
+      transform: scale(1.2);
+      margin-right: 8px;
+    }
+    input[type="date"], textarea {
+      width: 100%;
+      font-size: 13px;
+      padding: 6px;
+      margin-top: 5px;
+      box-sizing: border-box;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+    }
+    textarea {
+      height: 50px;
+      resize: vertical;
+    }
+    footer {
+      text-align: center;
+      font-size: 12px;
+      margin-top: 20px;
+      color: #777;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>🕌 12-Month Jamaat Challenge</h1>
+
+  <div class="intro">
+    <strong>What:</strong> Join Jamaat for 3 days (Fri–Sun) in 2nd week each month.<br>
+    <strong>Why:</strong> Spiritual connection, community bonding, self-discipline.<br>
+    <strong>Plan:</strong> Reserve 2nd Friday–Sunday every month for Jamaat.<br>
+    <strong>When:</strong> 2nd Friday–Sunday of each month in the current year.<br>
+    <strong>How:</strong> Track attendance, date, and write a short note per month.
+  </div>
+
+  <div id="months-container"></div>
+
+  <footer>
+    Your data is saved in browser (localStorage). Built by @theikbhal
+  </footer>
+
+  <script>
+    const container = document.getElementById("months-container");
+    const months = [
+      "January", "February", "March", "April", "May", "June",
+      "July", "August", "September", "October", "November", "December"
+    ];
+    const year = new Date().getFullYear();
+    const key = "jamaatChallengeData";
+    const saved = JSON.parse(localStorage.getItem(key) || "{}");
+
+    months.forEach((month, i) => {
+      const monthKey = `month-${i}`;
+      const data = saved[monthKey] || { done: false, date: "", note: "" };
+
+      const startDate = getSecondFriday(i, year);
+      const endDate = new Date(startDate);
+      endDate.setDate(startDate.getDate() + 2); // Friday + 2 = Sunday
+
+      const range = `${startDate.toDateString()} – ${endDate.toDateString()}`;
+
+      const div = document.createElement("div");
+      div.className = "month";
+      div.innerHTML = `
+        <div class="month-header">
+          <input type="checkbox" id="done-${i}" ${data.done ? "checked" : ""} onchange="saveData(${i})">
+          ${month} (${range})
+        </div>
+        <input type="date" id="date-${i}" value="${data.date}" onchange="saveData(${i})">
+        <textarea placeholder="Notes..." id="note-${i}" onchange="saveData(${i})">${data.note}</textarea>
+      `;
+      container.appendChild(div);
+    });
+
+    function getSecondFriday(month, year) {
+      const firstDay = new Date(year, month, 1);
+      const firstFriday = new Date(firstDay);
+      while (firstFriday.getDay() !== 5) {
+        firstFriday.setDate(firstFriday.getDate() + 1);
+      }
+      firstFriday.setDate(firstFriday.getDate() + 7); // second Friday
+      return firstFriday;
+    }
+
+    window.saveData = function (i) {
+      const all = JSON.parse(localStorage.getItem(key) || "{}");
+      all[`month-${i}`] = {
+        done: document.getElementById(`done-${i}`).checked,
+        date: document.getElementById(`date-${i}`).value,
+        note: document.getElementById(`note-${i}`).value
+      };
+      localStorage.setItem(key, JSON.stringify(all));
+    };
+  </script>
+
+</body>
+</html>
